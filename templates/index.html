@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>CSV Manager</title>
+    <!-- Bootstrap CSSの追加 -->
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            font-family: "Segoe UI", sans-serif;
+            padding-top: 20px;
+        }
+        .container {
+            max-width: 800px;
+        }
+        .form-control {
+            height: auto;
+        }
+        .spinner-border {
+            width: 3rem;
+            height: 3rem;
+            border-width: 0.3em;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 1000;
+            border-style: solid;
+            border-color: #f3f3f3 #3498db #3498db #3498db;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 class="text-center">CSV Manager</h1>
+
+        <!-- タブの追加 -->
+        <ul class="nav nav-tabs" id="myTab" role="tablist">
+            <li class="nav-item">
+                <a class="nav-link active" id="split-tab" data-toggle="tab" href="#split" role="tab" aria-controls="split" aria-selected="true">CSV分割</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" id="merge-tab" data-toggle="tab" href="#merge" role="tab" aria-controls="merge" aria-selected="false">CSV結合</a>
+            </li>
+        </ul>
+
+        <div class="tab-content" id="myTabContent">
+            <!-- CSV分割タブ -->
+            <div class="tab-pane fade show active" id="split" role="tabpanel" aria-labelledby="split-tab">
+                <form id="splitForm" action="/split" method="POST" enctype="multipart/form-data" class="mb-4">
+                    <div class="form-group">
+                        <label for="csvFile">CSVまたはTXTファイルを選択:</label>
+                        <input type="file" name="csv_file" id="csvFile" class="form-control-file" accept=".csv,.txt" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="rowsPerFile">1ファイルの行数（例：10000）:</label>
+                        <input type="number" name="rows_per_file" id="rowsPerFile" class="form-control" value="10000" min="1">
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-block">分割実行</button>
+                </form>
+            </div>
+
+            <!-- CSV結合タブ -->
+            <div class="tab-pane fade" id="merge" role="tabpanel" aria-labelledby="merge-tab">
+                <form id="mergeForm" action="/merge" method="POST" enctype="multipart/form-data" class="mb-4">
+                    <div class="form-group">
+                        <label for="csvFiles">CSVまたはTXTファイルを選択（複数選択可）:</label>
+                        <input type="file" name="csv_files" id="csvFiles" class="form-control-file" accept=".csv,.txt" multiple required>
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-block">結合実行</button>
+                </form>
+            </div>
+        </div>
+
+        <div id="spinner" class="spinner-border" role="status" style="display: none;">
+            <span class="sr-only">Loading...</span>
+        </div>
+    </div>
+
+    <!-- Bootstrap JSと依存関係の追加 -->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+    <script>
+        document.getElementById('splitForm').addEventListener('submit', function(event) {
+            event.preventDefault(); // フォームのデフォルトの送信を防ぐ
+            document.getElementById('spinner').style.display = 'block';
+
+            // フォームデータを取得
+            var formData = new FormData(this);
+
+            // AJAXリクエストを送信
+            fetch('/split', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.text())
+            .then(data => {
+                document.getElementById('spinner').style.display = 'none'; // スピナーを非表示
+                document.open();
+                document.write(data);
+                document.close();
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                document.getElementById('spinner').style.display = 'none'; // エラー時もスピナーを非表示
+            });
+        });
+
+        document.getElementById('mergeForm').addEventListener('submit', function(event) {
+            event.preventDefault(); // フォームのデフォルトの送信を防ぐ
+            document.getElementById('spinner').style.display = 'block';
+
+            // フォームデータを取得
+            var formData = new FormData(this);
+
+            // AJAXリクエストを送信
+            fetch('/merge', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.text())
+            .then(data => {
+                document.getElementById('spinner').style.display = 'none'; // スピナーを非表示
+                document.open();
+                document.write(data);
+                document.close();
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                document.getElementById('spinner').style.display = 'none'; // エラー時もスピナーを非表示
+            });
+        });
+    </script>
+</body>
+</html>
