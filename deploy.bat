@@ -35,7 +35,7 @@ git tag %VERSION%
 
 REM リモートリポジトリへのプッシュ
 echo Pushing to remote repository...
-git push origin master
+git push origin main
 
 REM タグのプッシュ
 echo Pushing tags to remote repository...
